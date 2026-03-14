@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Search, Video, CheckCircle2, UserPlus } from "lucide-react"
+import { Search, Video, UserPlus, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -57,10 +57,10 @@ function HeroSlider() {
     <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-muted/30 shadow-xl">
       <div className="aspect-4/3 w-full sm:aspect-square sm:max-w-md">
         {item.type === "expert" ? (
-          <div className="relative flex h-full flex-col justify-end p-4">
+          <div className="relative flex h-full w-full flex-col justify-end p-4">
             <Image
-              width={100}
-              height={100}
+              width={300}
+              height={300}
               src={item.image}
               alt={item.name}
               className="absolute inset-0 h-full w-full object-cover opacity-90"
@@ -69,7 +69,7 @@ function HeroSlider() {
             <div className="relative rounded-xl border border-white/20 bg-black/40 p-4 backdrop-blur-sm">
               <div className="flex items-center gap-3">
                 <div className="size-12 shrink-0 overflow-hidden rounded-full border-2 border-white/50">
-                  <Image width={100} height={100} src={item.image} alt="" className="h-full w-full object-cover" />
+                  <Image width={300} height={300} src={item.image} alt="hero" className="h-full w-full object-cover" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-white">{item.name}</p>
@@ -155,7 +155,7 @@ export function Hero() {
             <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
               {trustStats.map(({ value, label }) => (
                 <span key={label} className="flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-primary" />
+                  <CheckCircle className="size-4 text-green-600" />
                   <strong className="text-foreground">{value}</strong> {label}
                 </span>
               ))}

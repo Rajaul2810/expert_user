@@ -29,17 +29,19 @@ import { CATEGORIES_GRID } from "@/lib/expert-categories"
 import { cn } from "@/lib/utils"
 
 const WHY_ITEMS = [
-  { icon: DollarSign, title: "Earn Online", desc: "Set your own consultation fee." },
-  { icon: Globe, title: "Reach More Clients", desc: "Connect with people from anywhere." },
-  { icon: Clock, title: "Flexible Schedule", desc: "Work on your own time." },
-  { icon: Video, title: "Simple Video Consultation", desc: "Secure built-in video call system." },
+  { icon: DollarSign, title: "Earn Online", desc: "Set your own consultation fee." ,iconClass: "text-white bg-amber-500" },
+  { icon: Globe, title: "Reach More Clients", desc: "Connect with people from anywhere." ,iconClass: "text-white bg-blue-500" },
+  { icon: Clock, title: "Flexible Schedule", desc: "Work on your own time." ,iconClass: "text-white bg-green-500" },
+  { icon: Video, title: "Simple Video Consultation", desc: "Secure built-in video call system." ,iconClass: "text-white bg-purple-500" },
 ]
 
 const HOW_STEPS = [
-  { num: 1, title: "Create Profile", desc: "Add your expertise and experience.", icon: UserCheck },
-  { num: 2, title: "Set Your Availability", desc: "Choose time slots for consultations.", icon: CalendarCheck },
-  { num: 3, title: "Get Bookings", desc: "Users will book sessions with you.", icon: Wallet },
-  { num: 4, title: "Join Video Call & Earn", desc: "Deliver consultations and get paid.", icon: Video },
+  { num: 1, title: "Create Profile", desc: "Add your expertise and experience.", icon: UserCheck ,iconClass: "text-white bg-primary" },
+  { num: 2, title: "Set Your Availability", desc: "Choose time slots for consultations.", icon: CalendarCheck ,iconClass: "text-white bg-amber-500" },
+  { num: 3, title: "Get Bookings", desc: "Users will book sessions with you.", icon: Wallet ,iconClass: "text-white bg-blue-500" },
+  { num: 4, title: "Join Video Call & Earn", desc: "Deliver consultations and get paid.", icon: Video ,iconClass: "text-white bg-green-500" },
+  { num: 3, title: "Get Bookings", desc: "Users will book sessions with you.", icon: Wallet, iconClass: "text-white bg-purple-500" },
+  { num: 4, title: "Join Video Call & Earn", desc: "Deliver consultations and get paid.", icon: Video, iconClass: "text-white bg-primary" },
 ]
 
 const REQUIREMENTS = [
@@ -123,8 +125,8 @@ export default function BecomeAnExpertPage() {
               return (
                 <Card key={item.title} className="border-border transition-shadow hover:shadow-md">
                   <CardContent className="p-5">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Icon className="size-5" />
+                    <div className={cn("flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary", item.iconClass)}>
+                      <Icon className={cn("size-5", item.iconClass)} />
                     </div>
                     <h3 className="mt-3 font-semibold text-foreground">{item.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
@@ -188,8 +190,8 @@ export default function BecomeAnExpertPage() {
                   key={step.num}
                   className="flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/30"
                 >
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Icon className="size-6" />
+                  <div className={cn("flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary", step.iconClass)}>
+                    <Icon className={cn("size-6", step.iconClass)} />
                   </div>
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Step {step.num}</span>
