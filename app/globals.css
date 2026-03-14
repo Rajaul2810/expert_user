@@ -118,11 +118,28 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
 }
+
+@keyframes hero-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(6%, -4%) scale(1.02); }
+  66% { transform: translate(-4%, 4%) scale(0.98); }
+}
+@keyframes hero-float-slow {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5%, -3%); }
+}
+@keyframes hero-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.animate-hero-float { animation: hero-float 12s ease-in-out infinite; }
+.animate-hero-float-slow { animation: hero-float-slow 18s ease-in-out infinite; }
+.animate-hero-glow { animation: hero-glow 4s ease-in-out infinite; }
