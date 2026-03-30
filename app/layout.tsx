@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/components/auth-provider"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
+import { WhatsappFloat } from "@/components/whatsapp-float"
 import { cn } from "@/lib/utils"
 
 const notoSans = Noto_Sans({ variable: "--font-sans" })
@@ -32,6 +33,7 @@ export default function RootLayout({
               {children}
               <Footer />
             </div>
+            <WhatsappFloat />
           </AuthProvider>
         </ThemeProvider>
       </body>
