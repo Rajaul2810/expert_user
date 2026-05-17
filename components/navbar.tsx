@@ -49,7 +49,7 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
           className="text-lg flex gap-1 items-center font-semibold text-foreground no-underline rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Image width={50} height={50} src="/logopng.png" alt="Expert" />
-          Expert
+          Meet Expert
         </Link>
         <div className="hidden items-center gap-1 sm:flex sm:gap-2">
           {navLinks.map(({ href, label }) => (

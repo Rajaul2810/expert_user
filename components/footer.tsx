@@ -62,7 +62,7 @@ function Footer({ className, ...props }: React.ComponentProps<"footer">) {
               className="inline-flex items-center gap-2 text-foreground no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
             >
               <Image src="/logopng.png" alt="" width={36} height={36} className="size-9" />
-              <span className="font-semibold">Expert</span>
+              <span className="font-semibold">Meet Expert</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               Book verified professionals for instant video consultation. Lawyers, advisors, scholars — one platform.
@@ -121,7 +121,7 @@ function Footer({ className, ...props }: React.ComponentProps<"footer">) {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Expert. All rights reserved.
+            © {new Date().getFullYear()} Meet Expert. All rights reserved.
           </p>
           <nav className="flex flex-wrap items-center justify-center gap-6">
             {legalLinks.map(({ href, label }) => (

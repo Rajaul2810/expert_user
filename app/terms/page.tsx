@@ -18,7 +18,7 @@ export default function TermsPage() {
         <div className="prose prose-neutral dark:prose-invert max-w-none">
           <h2 className="text-xl font-semibold text-foreground mt-8 first:mt-0">1. Acceptance</h2>
           <p className="mt-2 text-muted-foreground leading-relaxed">
-            By using Expert (&quot;the platform&quot;), you agree to these Terms of Service. If you do not
+            By using Meet Expert (&quot;the platform&quot;), you agree to these Terms of Service. If you do not
             agree, do not use the service. We may change these terms; we will notify you of
             material changes by posting the updated terms and updating the &quot;Last updated&quot; date.
           </p>
@@ -53,7 +53,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-semibold text-foreground mt-8">6. Limitation of liability</h2>
           <p className="mt-2 text-muted-foreground leading-relaxed">
-            To the extent permitted by law, Expert and its affiliates are not liable for indirect,
+            To the extent permitted by law, Meet Expert and its affiliates are not liable for indirect,
             incidental, or consequential damages arising from your use of the platform or any
             advice received. Our total liability is limited to the amount you paid for the
             relevant booking in the past twelve months.
@@ -68,7 +68,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-semibold text-foreground mt-8">8. Governing law</h2>
           <p className="mt-2 text-muted-foreground leading-relaxed">
-            These terms are governed by the laws of the jurisdiction in which Expert operates.
+            These terms are governed by the laws of the jurisdiction in which Meet Expert operates.
             Disputes will be resolved in the courts of that jurisdiction, unless otherwise
             required by law.
           </p>

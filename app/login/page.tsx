@@ -33,7 +33,7 @@ export default function LoginPage() {
             className="mb-6 flex items-center justify-center gap-2 text-foreground no-underline"
           >
             <Image src="/logopng.png" alt="" width={40} height={40} className="size-10" />
-            <span className="text-xl font-semibold">Expert</span>
+            <span className="text-xl font-semibold">Meet Expert</span>
           </Link>
           <h1 className="text-center text-2xl font-bold tracking-tight">Sign in</h1>
           <p className="mt-1 text-center text-sm text-muted-foreground">
