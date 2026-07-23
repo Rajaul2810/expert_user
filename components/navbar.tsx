@@ -6,6 +6,7 @@ import { useTheme } from "next-themes"
 import { Menu, Moon, Sun, User, LayoutDashboard, LogOut, X, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/components/auth-provider"
+import { logoutRequest } from "@/lib/auth-api"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -19,7 +20,7 @@ const navLinks = [
 
 function Navbar({ className, ...props }: React.ComponentProps<"header">) {
   const { resolvedTheme, setTheme } = useTheme()
-  const { isLoggedIn, login, logout } = useAuth()
+  const { isLoggedIn, logout, user, token } = useAuth()
   const [menuOpen, setMenuOpen] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
@@ -34,6 +35,7 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
       return () => document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [menuOpen])
+
 
   return (
     <header
@@ -74,7 +76,7 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
               <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </span>
           </Button>
-          {isLoggedIn ? (
+          {isLoggedIn && user ? (
             <div className="relative" ref={menuRef}>
               <Button
                 variant="outline"
@@ -84,7 +86,7 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
                 aria-haspopup="true"
               >
                 <User className="size-4" />
-                <span className="ml-1.5">Account</span>
+                <span className="ml-1.5">{user.name.length > 7 ? user.name.slice(0, 7) + "..." : user.name || "Account"}</span>
               </Button>
               {menuOpen && (
                 <div
@@ -113,9 +115,17 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
                     type="button"
                     className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background text-left"
                     role="menuitem"
-                    onClick={() => {
+                    onClick={async () => {
+                      if (token) {
+                        try {
+                          await logoutRequest(token)
+                        } catch {
+                          // ignore
+                        }
+                      }
                       logout()
                       setMenuOpen(false)
+                      router.push("/")
                     }}
                   >
                     <LogOut className="size-4" />
@@ -172,12 +182,35 @@ function Navbar({ className, ...props }: React.ComponentProps<"header">) {
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm font-medium hover:bg-muted outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                     Dashboard
                   </Link>
-                  <Button variant="ghost" size="sm" className="text-destructive" onClick={() => { logout(); setMobileOpen(false) }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={async () => {
+                      if (token) {
+                        try {
+                          await logoutRequest(token)
+                        } catch {
+                          // ignore
+                        }
+                      }
+                      logout()
+                      setMobileOpen(false)
+                      router.push("/")
+                    }}
+                  >
                     Logout
                   </Button>
                 </>
               ) : (
-                <Button variant="default" size="sm" onClick={() => { login(); setMobileOpen(false) }}>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => {
+                    setMobileOpen(false)
+                    router.push("/login")
+                  }}
+                >
                   Login
                 </Button>
               )}

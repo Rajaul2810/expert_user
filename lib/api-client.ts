@@ -1,5 +1,4 @@
-const getBaseUrl = () =>
-  typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_APP_URL ?? ""
+const getBaseUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? ""
 
 export class ApiError extends Error {
   status: number
@@ -13,7 +12,9 @@ export class ApiError extends Error {
   }
 }
 
-type RequestOptions = Omit<RequestInit, "method" | "body">
+type RequestOptions = Omit<RequestInit, "method" | "body"> & {
+  token?: string | null
+}
 
 async function parseResponse<T>(res: Response): Promise<T> {
   const text = await res.text()
@@ -25,19 +26,36 @@ async function parseResponse<T>(res: Response): Promise<T> {
   }
 }
 
-async function request<T>(path: string, init: RequestInit): Promise<T> {
+function messageFromBody(body: unknown, fallback: string): string {
+  if (body && typeof body === "object" && "message" in body) {
+    const msg = (body as { message?: unknown }).message
+    if (typeof msg === "string" && msg.trim()) return msg
+  }
+  return fallback
+}
+
+async function request<T>(path: string, init: RequestInit & { token?: string | null }): Promise<T> {
+  const { token, ...fetchInit } = init
   const url = path.startsWith("http") ? path : `${getBaseUrl()}${path}`
-  const headers = new Headers(init.headers)
+  const headers = new Headers(fetchInit.headers)
 
   if (
-    init.body &&
-    !(init.body instanceof FormData) &&
+    fetchInit.body &&
+    !(fetchInit.body instanceof FormData) &&
     !headers.has("Content-Type")
   ) {
     headers.set("Content-Type", "application/json")
   }
 
-  const res = await fetch(url, { ...init, headers })
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json")
+  }
+
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`)
+  }
+
+  const res = await fetch(url, { ...fetchInit, headers })
 
   if (!res.ok) {
     let body: unknown
@@ -46,7 +64,11 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
     } catch {
       body = undefined
     }
-    throw new ApiError(res.statusText || `HTTP ${res.status}`, res.status, body)
+    throw new ApiError(
+      messageFromBody(body, res.statusText || `HTTP ${res.status}`),
+      res.status,
+      body
+    )
   }
 
   return parseResponse<T>(res)
@@ -67,6 +89,14 @@ export function post<T = unknown>(
   options?: RequestOptions
 ) {
   return request<T>(path, { ...options, method: "POST", body: jsonBody(body) })
+}
+
+export function postForm<T = unknown>(
+  path: string,
+  body: FormData,
+  options?: RequestOptions
+) {
+  return request<T>(path, { ...options, method: "POST", body })
 }
 
 export function put<T = unknown>(
