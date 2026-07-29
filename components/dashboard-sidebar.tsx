@@ -18,6 +18,7 @@ import {
   Menu,
   X,
   User,
+  ClipboardList,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logoutRequest } from "@/lib/auth-api"
@@ -81,6 +82,12 @@ const navSections: NavSection[] = [
         href: "/dashboard/blogs",
         label: "Blogs",
         icon: FileStack,
+        roles: ["expert"],
+      },
+      {
+        href: "/dashboard/application",
+        label: "Application",
+        icon: ClipboardList,
         roles: ["expert"],
       },
     ],
