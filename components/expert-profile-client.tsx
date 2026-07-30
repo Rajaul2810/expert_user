@@ -188,19 +188,19 @@ export function ExpertProfileClient({ expert }: { expert: ExpertDetail }) {
                   <p className="mt-0.5 text-sm font-semibold text-foreground">{expert.registrationValue}</p>
                 </div>
                 <div className="bg-card px-4 py-3 text-center sm:text-left">
-                  <p className="text-xs font-medium text-muted-foreground">Total rating</p>
-                  <div className="mt-0.5 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-                    <Stars value={expert.rating} />
-                    <span className="text-sm font-semibold text-foreground">{expert.rating.toFixed(1)}</span>
-                    <span className="text-xs text-muted-foreground">({expert.reviews.length} reviews)</span>
-                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">Specialty</p>
+                  <p className="mt-0.5 text-sm font-semibold text-foreground">
+                    {expert.subcategory || expert.category}
+                  </p>
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Current: </span>
-                {expert.currentWorkplace}
-              </p>
+              {expert.currentWorkplace && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Current: </span>
+                  {expert.currentWorkplace}
+                </p>
+              )}
             </div>
 
             <div className="flex w-full flex-col gap-4 border-t border-border pt-6 lg:w-72 lg:shrink-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
@@ -217,9 +217,11 @@ export function ExpertProfileClient({ expert }: { expert: ExpertDetail }) {
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground">Consultation fee</p>
-                <p className="text-3xl font-bold tracking-tight text-primary">{expert.price}</p>
-                <p className="text-xs text-muted-foreground">{expert.duration} per session</p>
+                <p className="text-sm text-muted-foreground">Expert code</p>
+                <p className="text-2xl font-bold tracking-tight text-primary">{expert.expertCode}</p>
+                {expert.headline && (
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{expert.headline}</p>
+                )}
               </div>
 
               <Button
@@ -293,12 +295,14 @@ export function ExpertProfileClient({ expert }: { expert: ExpertDetail }) {
                   <Card className="border-border bg-card">
                     <CardContent className="flex items-center gap-3 p-4">
                       <div className="flex size-10 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400">
-                        <Video className="size-5" />
+                        <Globe className="size-5" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Sessions</p>
+                        <p className="text-xs font-medium text-muted-foreground">Languages</p>
                         <p className="text-sm font-semibold text-foreground">
-                          {expert.sessions}+ completed
+                          {expert.languages.length > 0
+                            ? expert.languages.slice(0, 2).join(", ")
+                            : "—"}
                         </p>
                       </div>
                     </CardContent>
@@ -315,21 +319,25 @@ export function ExpertProfileClient({ expert }: { expert: ExpertDetail }) {
                   </CardHeader>
 
                   <CardContent className="space-y-4">
-                    {expert.education.map((edu, i) => (
-                      <div
-                        key={i}
-                        className="flex gap-3 border-b border-border pb-4 last:border-0 last:pb-0"
-                      >
-                        <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                          <GraduationCap className="size-4 text-primary" />
+                    {expert.education.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No education listed yet.</p>
+                    ) : (
+                      expert.education.map((edu, i) => (
+                        <div
+                          key={i}
+                          className="flex gap-3 border-b border-border pb-4 last:border-0 last:pb-0"
+                        >
+                          <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                            <GraduationCap className="size-4 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground">{edu.degree}</p>
+                            <p className="text-sm text-muted-foreground">{edu.institution}</p>
+                            <p className="text-xs text-muted-foreground">{edu.year}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-foreground">{edu.degree}</p>
-                          <p className="text-sm text-muted-foreground">{edu.institution}</p>
-                          <p className="text-xs text-muted-foreground">{edu.year}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </CardContent>
                 </Card>
 
@@ -341,107 +349,157 @@ export function ExpertProfileClient({ expert }: { expert: ExpertDetail }) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {expert.expertise.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="font-normal">
-                          {tag}
-                        </Badge>
+                    {expert.expertise.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No skills listed yet.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {expert.expertise.map((tag) => (
+                          <Badge key={tag} variant="secondary" className="font-normal">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {expert.languages.length > 0 && (
+                      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                        <Globe className="size-4 text-primary" />
+                        {expert.languages.join(" · ")}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {expert.demoVideoEmbedUrl && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Video className="size-5 text-primary" />
+                        Intro video
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="aspect-video overflow-hidden rounded-xl border border-border bg-muted">
+                        <iframe
+                          title={`${expert.name} intro video`}
+                          src={expert.demoVideoEmbedUrl}
+                          className="size-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {expert.portfolio.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Briefcase className="size-5 text-primary" />
+                        Portfolio
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {expert.portfolio.map((p, i) => (
+                        <a
+                          key={`${p.url}-${i}`}
+                          href={p.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="block text-sm font-medium text-primary hover:underline"
+                        >
+                          {p.title || p.url}
+                        </a>
                       ))}
-                    </div>
-                    <div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                      <Globe className="size-4 text-primary" />
-                      {expert.languages.join(" · ")}
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Video className="size-5 text-primary" />
-                      Intro video
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="aspect-video overflow-hidden rounded-xl border border-border bg-muted">
-                      <iframe
-                        title={`${expert.name} intro video`}
-                        src={expert.demoVideoEmbedUrl}
-                        className="size-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="flex flex-wrap gap-4 text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Clock className="size-4 text-primary" />
-                      {expert.responseTime}
-                    </span>
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="size-4 text-primary" />
-                      Member since {expert.joinedYear}
-                    </span>
-                  </CardContent>
-                </Card>
+                {(expert.responseTime || expert.joinedYear) && (
+                  <Card>
+                    <CardContent className="flex flex-wrap gap-4 text-sm">
+                      {expert.responseTime && (
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="size-4 text-primary" />
+                          {expert.responseTime}
+                        </span>
+                      )}
+                      {expert.joinedYear && (
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          <Calendar className="size-4 text-primary" />
+                          Member since {expert.joinedYear}
+                        </span>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
 
             {tab === "experience" && (
               <div className="grid gap-4 sm:grid-cols-2">
-                {expert.workExperience.map((w, i) => (
-                  <Card key={i} className="border-border bg-card">
-                    <CardContent className="p-4 sm:p-5">
-                      <p className="font-semibold text-foreground">{w.organization}</p>
-                      <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Designation</p>
-                          <p className="font-medium text-foreground">{w.designation}</p>
+                {expert.workExperience.length === 0 ? (
+                  <p className="text-sm text-muted-foreground col-span-full">
+                    No work experience listed yet.
+                  </p>
+                ) : (
+                  expert.workExperience.map((w, i) => (
+                    <Card key={i} className="border-border bg-card">
+                      <CardContent className="p-4 sm:p-5">
+                        <p className="font-semibold text-foreground">{w.organization}</p>
+                        <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Designation</p>
+                            <p className="font-medium text-foreground">{w.designation}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Details</p>
+                            <p className="font-medium text-foreground">{w.department || "—"}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Employment</p>
+                            <p className="font-medium text-foreground">{w.employment || "—"}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Period</p>
+                            <p className="font-medium text-foreground">{w.period || "—"}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Department</p>
-                          <p className="font-medium text-foreground">{w.department}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Employment</p>
-                          <p className="font-medium text-foreground">{w.employment}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Period</p>
-                          <p className="font-medium text-foreground">{w.period}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
               </div>
             )}
 
             {tab === "reviews" && (
               <div className="space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    Average from {expert.reviews.length} reviews
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Stars value={avgReview} />
-                    <span className="font-semibold text-foreground">{avgReview.toFixed(1)}</span>
-                  </div>
-                </div>
-                <Separator />
-                {expert.reviews.map((r) => (
-                  <div key={r.id} className="rounded-lg border border-border bg-card p-4">
+                {expert.reviews.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No reviews yet.</p>
+                ) : (
+                  <>
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-medium text-foreground">{r.author}</p>
-                      <Stars value={r.rating} />
+                      <p className="text-sm text-muted-foreground">
+                        Average from {expert.reviews.length} reviews
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Stars value={avgReview} />
+                        <span className="font-semibold text-foreground">{avgReview.toFixed(1)}</span>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
-                    <p className="mt-2 text-xs text-muted-foreground">{r.date}</p>
-                  </div>
-                ))}
+                    <Separator />
+                    {expert.reviews.map((r) => (
+                      <div key={r.id} className="rounded-lg border border-border bg-card p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-medium text-foreground">{r.author}</p>
+                          <Stars value={r.rating} />
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>
+                        <p className="mt-2 text-xs text-muted-foreground">{r.date}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>

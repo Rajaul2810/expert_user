@@ -8,8 +8,7 @@ type PageProps = {
 
 export default async function ExpertDetailsPage({ params }: PageProps) {
   const { slug } = await params
-  const expert = getExpertDetail(slug)
+  const expert = await getExpertDetail(slug)
   if (!expert) notFound()
-
   return <ExpertProfileClient expert={expert} />
 }

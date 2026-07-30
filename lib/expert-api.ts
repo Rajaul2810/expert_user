@@ -2,6 +2,7 @@ import { get, postForm, put } from "@/lib/api-client"
 import type { ApiEnvelope } from "@/lib/auth-api"
 
 const BASE = "https://admin.meetexpertbd.xyz"
+export const EXPERTS_API_URL = `${BASE}/api/v1/experts`
 
 export type EducationEntry = {
   institution: string
@@ -20,6 +21,72 @@ export type ExperienceEntry = {
 export type PortfolioEntry = {
   title: string
   url: string
+}
+
+export type ExpertTaxonomyRef = {
+  id: number
+  name: string
+  slug: string
+}
+
+export type ExpertSkill = ExpertTaxonomyRef
+
+export type ExpertEntity = {
+  id: number
+  name: string
+  uuid: string
+  expert_code: string
+  slug: string
+  professional_headline: string
+  bio: string
+  years_of_experience: number
+  registration_value: string
+  intro_video: string | null
+  intro_video_url: string | null
+  languages: string[]
+  avatar: string | null
+  avatar_url: string | null
+  documents: unknown[]
+  education: EducationEntry[]
+  experience: ExperienceEntry[]
+  portfolio: PortfolioEntry[]
+  category: ExpertTaxonomyRef
+  subcategory: ExpertTaxonomyRef
+  skills: ExpertSkill[]
+}
+
+export type ExpertsListParams = {
+  category_id?: number
+  subcategory_id?: number
+  skill_id?: number
+  skill_ids?: number[]
+  page?: number
+  per_page?: number
+}
+
+function expertsQuery(params?: ExpertsListParams): string {
+  if (!params) return ""
+  const q = new URLSearchParams()
+  if (params.category_id != null) q.set("category_id", String(params.category_id))
+  if (params.subcategory_id != null) q.set("subcategory_id", String(params.subcategory_id))
+  if (params.skill_id != null) q.set("skill_id", String(params.skill_id))
+  if (params.skill_ids?.length) {
+    for (const id of params.skill_ids) q.append("skill_ids[]", String(id))
+  }
+  if (params.page != null) q.set("page", String(params.page))
+  if (params.per_page != null) q.set("per_page", String(params.per_page))
+  const s = q.toString()
+  return s ? `?${s}` : ""
+}
+
+export async function fetchExperts(params?: ExpertsListParams) {
+  return get<ApiEnvelope<ExpertEntity[]>>(
+    `${EXPERTS_API_URL}${expertsQuery(params)}`
+  )
+}
+
+export async function fetchExpertById(id: number | string) {
+  return get<ApiEnvelope<ExpertEntity>>(`${EXPERTS_API_URL}/${id}`)
 }
 
 export type ExpertApplication = {

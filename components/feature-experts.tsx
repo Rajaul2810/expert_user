@@ -3,15 +3,20 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Search, Star, Video, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
+import { Search, Video, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { DEMO_EXPERTS, EXPERT_CATEGORIES_FILTER, type ExpertItem } from "@/lib/experts-data"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useGet } from "@/hooks/use-get"
+import { EXPERTS_API_URL, type ExpertEntity } from "@/lib/expert-api"
+import type { ApiEnvelope } from "@/lib/auth-api"
+import { mapExpertToItem, type ExpertItem } from "@/lib/experts-data"
+import { useTaxonomy } from "@/hooks/use-taxonomy"
 import { cn } from "@/lib/utils"
 
-type SortOption = "rating" | "sessions" | "price"
+type SortOption = "experience" | "name"
 
 function filterAndSort(
   list: ExpertItem[],
@@ -20,18 +25,19 @@ function filterAndSort(
   sortBy: SortOption
 ): ExpertItem[] {
   let out = list.filter((e) => {
+    const q = search.trim().toLowerCase()
     const matchSearch =
-      !search.trim() ||
-      e.name.toLowerCase().includes(search.toLowerCase()) ||
-      e.category.toLowerCase().includes(search.toLowerCase()) ||
-      e.bio.toLowerCase().includes(search.toLowerCase())
+      !q ||
+      e.name.toLowerCase().includes(q) ||
+      e.category.toLowerCase().includes(q) ||
+      e.headline.toLowerCase().includes(q) ||
+      e.bio.toLowerCase().includes(q)
     const matchCategory = category === "All" || e.category === category
     return matchSearch && matchCategory
   })
   out = [...out].sort((a, b) => {
-    if (sortBy === "rating") return b.rating - a.rating
-    if (sortBy === "sessions") return b.sessions - a.sessions
-    return Number(a.price.replace(/[^0-9]/g, "")) - Number(b.price.replace(/[^0-9]/g, ""))
+    if (sortBy === "name") return a.name.localeCompare(b.name)
+    return b.yearsExperience - a.yearsExperience
   })
   return out
 }
@@ -39,19 +45,34 @@ function filterAndSort(
 export function FeatureExperts() {
   const [search, setSearch] = React.useState("")
   const [category, setCategory] = React.useState<string>("All")
-  const [sortBy, setSortBy] = React.useState<SortOption>("rating")
+  const [sortBy, setSortBy] = React.useState<SortOption>("experience")
   const scrollRef = React.useRef<HTMLDivElement>(null)
+  const { categories } = useTaxonomy()
+
+  const { data, isLoading } = useGet<ApiEnvelope<ExpertEntity[]>>(
+    `${EXPERTS_API_URL}?per_page=20`
+  )
+
+  const experts = React.useMemo(
+    () => (data?.data ?? []).map(mapExpertToItem),
+    [data]
+  )
+
+  const categoryFilters = React.useMemo(
+    () => ["All", ...categories.map((c) => c.name)],
+    [categories]
+  )
 
   const filtered = React.useMemo(
-    () => filterAndSort(DEMO_EXPERTS, search, category, sortBy),
-    [search, category, sortBy]
+    () => filterAndSort(experts, search, category, sortBy),
+    [experts, search, category, sortBy]
   )
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return
-    const cardWidth = 320
-    const gap = 24
-    const step = (cardWidth + gap) * (dir === "left" ? -1 : 1)
+    const card = scrollRef.current.querySelector<HTMLElement>("[data-expert-card]")
+    const gap = 16
+    const step = ((card?.offsetWidth ?? 280) + gap) * (dir === "left" ? -1 : 1)
     scrollRef.current.scrollBy({ left: step, behavior: "smooth" })
   }
 
@@ -88,7 +109,7 @@ export function FeatureExperts() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-muted-foreground">Sort:</span>
               <div className="flex rounded-lg border border-border bg-background p-0.5">
-                {(["rating", "sessions", "price"] as const).map((s) => (
+                {(["experience", "name"] as const).map((s) => (
                   <button
                     key={s}
                     type="button"
@@ -100,14 +121,14 @@ export function FeatureExperts() {
                         : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    {s === "rating" ? "Rating" : s === "sessions" ? "Sessions" : "Price"}
+                    {s === "experience" ? "Experience" : "Name"}
                   </button>
                 ))}
               </div>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            {EXPERT_CATEGORIES_FILTER.map((cat) => (
+            {categoryFilters.map((cat) => (
               <Badge
                 key={cat}
                 variant={category === cat ? "default" : "outline"}
@@ -123,10 +144,33 @@ export function FeatureExperts() {
         <div className="relative mt-8">
           <div
             ref={scrollRef}
-            className="flex gap-6 overflow-x-auto pb-4 scroll-smooth scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex items-stretch gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             style={{ scrollSnapType: "x mandatory" }}
           >
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  data-expert-card
+                  className="h-105 w-65 shrink-0 sm:w-70"
+                  style={{ scrollSnapAlign: "start" }}
+                >
+                  <Card className="flex h-full flex-col overflow-hidden">
+                    <Skeleton className="h-44 w-full shrink-0 rounded-none" />
+                    <CardContent className="flex flex-1 flex-col gap-2 p-4">
+                      <Skeleton className="h-5 w-20" />
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="mt-auto h-3 w-24" />
+                    </CardContent>
+                    <div className="border-t border-border p-4">
+                      <Skeleton className="h-9 w-full" />
+                    </div>
+                  </Card>
+                </div>
+              ))
+            ) : filtered.length === 0 ? (
               <div className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
                 <Search className="size-10 text-muted-foreground" />
                 <p className="mt-3 text-sm font-medium text-foreground">No experts match your filters</p>
@@ -146,40 +190,40 @@ export function FeatureExperts() {
               filtered.map((expert) => (
                 <div
                   key={expert.id}
-                  className="min-w-[280px] shrink-0 sm:min-w-[300px] lg:min-w-[320px]"
+                  data-expert-card
+                  className="h-105 w-65 shrink-0 sm:w-70"
                   style={{ scrollSnapAlign: "start" }}
                 >
-                  <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
-                    <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
+                  <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lg">
+                    <div className="relative h-44 w-full shrink-0 overflow-hidden bg-muted">
                       <Image
                         src={expert.image}
                         alt={expert.name}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 640px) 280px, (max-width: 1024px) 300px, 320px"
+                        sizes="280px"
                       />
                       <div className="absolute right-2 top-2">
-                        <Badge variant="secondary" className="gap-1 text-xs">
-                          <Star className="size-3 fill-amber-400 text-amber-400" />
-                          {expert.rating}
+                        <Badge variant="secondary" className="text-xs">
+                          {expert.yearsExperience}+ yrs
                         </Badge>
                       </div>
                     </div>
-                    <CardContent className="p-4">
-                      <Badge variant="outline" className="mb-2 text-xs">
+                    <CardContent className="flex flex-1 flex-col gap-2 p-4">
+                      <Badge variant="outline" className="w-fit max-w-full truncate text-xs">
                         {expert.category}
                       </Badge>
-                      <h3 className="font-semibold text-foreground">{expert.name}</h3>
-                      <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
-                        {expert.bio}
+                      <h3 className="line-clamp-1 text-base font-semibold leading-snug text-foreground">
+                        {expert.name}
+                      </h3>
+                      <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                        {expert.headline || expert.bio}
                       </p>
-                      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        <span>{expert.sessions} sessions</span>
-                        <span>{expert.duration}</span>
-                        <span className="font-medium text-foreground">{expert.price}</span>
-                      </div>
+                      <p className="mt-auto truncate text-xs text-muted-foreground">
+                        {expert.subcategory || expert.expertCode}
+                      </p>
                     </CardContent>
-                    <CardFooter className="border-t border-border p-4">
+                    <CardFooter className="mt-auto shrink-0 border-t border-border p-4">
                       <Button size="sm" className="w-full gap-1.5" asChild>
                         <Link href={`/experts/${expert.id}`}>
                           <Video className="size-4" />
